@@ -1,0 +1,294 @@
+-Mongo Db 
+  - Creating Collection ( Table )
+     1- db.createCollection("Employees") 
+	 2- by using insert
+	 
+- you can create Collection with many fucntion related to this collection [  capped , size , max  ]
+      
+	 capped : special type of collection that automatically overwrites the oldest documents 
+					when the collection reaches a specified size limit.
+					 seful for use cases like logging or maintaining a rolling history of documents.
+					 
+	 db.createCollection("students", {
+	  capped: true,          // Make the collection capped.
+	  size: 5242880,         // Maximum size in bytes (5 MB in this example)
+	  max: 1000              // Maximum number of documents allowed in the collection
+	})
+	     ------------------------ CURD Operation ----------------------
+	 
+- create Operation  
+   - insertOne()     , insertMany() 
+   
+   
+   Example : 
+   - insert One       take one document
+      db.user.insertOne(
+		{
+			userId:1 ,
+			name:"mina",
+			age :30
+		}
+)
+  - insert Many    take array of documents
+ db.user.insertMany(
+	[
+	  { userId:2, name:"Marco", age:28},
+	  {userId:3 ,name:"Sevo" , age:2},
+	  {userId:4 ,name:"Helana", age:20}
+	]
+
+);
+
+    ------------------------------------           READ              --------------------------------------------------
+
+- Read Operation   ( using condition and projection)
+   - db.user.find()
+   - db.user.find(). pretty()
+   - db.user.find({age :{$gt: 18 }})   >>> select * from user where age>= 18
+    -db.user.find( { age: {$gt:18 } } ,  { userId:1 ,name:1} )  >>>   select userId , name  from user where age>= 18
+  
+ 
+)
+
+------------------------------------------             Update             ----------------------------------------------------
+
+
+- update operation  
+  db.user.updateMany(           update user set name="Helloo" where age >=18
+    {age:{$gt:20}},
+    {$set: {name:"Helllo"}}
+)
+
+
+- update with non exist filed in document   "Status"
+
+db.user.updateOne(
+    {name:"Tony"},                               /// filiter condintion whrere name="tony"
+   {$set:{age:125} , $set:{status:"expred"}     // will update the age and if status not exist whil add it to each document
+ }
+)
+
+-----------------------------------          DELETE                   --------------------------------
+
+
+- Delete Operation
+  db.user.deleteMany(
+		{name:"Helllo"}
+)
+
+
+
+-------------------------   Find Query operation  ---------------------
+
+Ex :  find all documeent and show only Field Name
+db.user.find({},{name:1})   
+
+- Size() : Count numbre of document inside the collection 
+   db.user.find().size()
+   
+-skip(n) : to skip first 2 documner   
+    db.user.find().skip(2)
+	
+	
+-limit(n) : to limit docuemt and return first 2 document
+  db.user.find().limit(2)
+
+-sort() : to order by document based filed Desc(-1)  Or Asec (1)
+  db.user.find().sort({age:-1})    // Descending    select * from user order by age Desc
+  db.user.find().sort({age:1})    // Aescending    select * from user order by age aesc
+  
+  
+  
+  Working with AND  and OR Operation
+  db.student.insertMany(
+	[
+		{
+			"studentNo": "S001",
+			"firstName": "John",
+			"lastName": "Doe",
+			"age": 20
+		},
+		{
+			"studentNo": "S002",
+			"firstName": "Jane",
+			"lastName": "Smith",
+			"age": 22
+		},
+		{
+			"studentNo": "S003",
+			"firstName": "Alex",
+			"lastName": "Johnson",
+			"age": 21
+		}
+
+    ]
+)
+
+kindly note the And && OR write in Query filiter which in first {} inside the find
+  - And Operation 
+  Ex:
+    syntax  : find ( {colum , colum }  )     
+       db.student.find( 
+          	   { "firstName":"Alexa" , age:{$gt:12} } 
+			   )
+
+   select * from student where firstName="Alex" And age >=12
+
+	   
+  - OR Operation  $or or "$or"
+     synatx : find (  
+	 { "$or":  ..> fixed Word
+
+	 [   // array of condition
+		{condition 1} , {condintion 2 }
+	 ]
+	 
+	 }
+  
+
+db.student.find(
+  {
+   "$or"   // $or 
+     : [
+
+          {"FirstName": "mina"} , 
+          {age :{$gt: 12}}
+
+		]
+}
+)  
+    select  * from student where firstName="Mina" OR age>=12 
+  Ex2 : db.student.find(    { "$or":   [    {age: 23 },{age: 15 },{age: 21 }   ]  })
+  
+ - using  And Or in same Query
+     db.student.find(    { firstName:"Alex"  ,   "$or":   [    {age: 23 },{age: 15 },{age: 21 }   ]  })
+	 
+	 
+- In Operater 
+  syntax : 
+    find{ filed: { $in:[ value , value ]    }
+	
+	
+	db.student.find ( {
+	lastName:{ $in:["Smith", "Johnson"] }
+					 
+	})
+
+    select * from student where lastName in ('smith, Johnson' )
+  
+  
+  ---------------------------- Projection ----------------------
+  
+  using to speacify which field you need to display in Find Query its the second section on from the find operation
+	-Syntax : find( {} , { Field 1 :1 filed 2:1 , filed 3 :0 }  }  
+	     
+		 find ({} , { firstname : 1 , age :0 ) } >> select firstname from emps 
+		 
+		 
+----------------------------------     Aggregation      -------------------------------------
+
+-stage :  
+   projection
+   match
+   group      [ like $sum, $avg, $max, $min, $push, etc., for more complex operations within the aggregation stages. )
+   sort
+   
+   kindly note All stage put between [ Array ] and each stage { action }
+   synatx : 
+   
+     db.collection.aggregate([
+		  { <stage1> },
+		  { <stage2> },
+		  { <stage3> },
+ 
+])
++General Pipeline Sequence:
+  $match → 2. $sort → 3. $project → 4. $group → 5. $unwind → 6. $skip → 7. $limit → 8. $addFields → 9. $facet → 10. $merge or $out
+Summary of Each Stage's Purpose:
+	$match: Filters documents. 
+	   Ex1 : 
+		db.employees.aggregate(
+		[ 
+			  { $match:{dept:"Sales"}} , 
+			   {$project:{"name":1}}
+		]
+		)
+	$sort: Sorts documents by fields.
+	$project: Selects specific fields or reshapes documents.
+	$group: Groups documents and performs aggregation operations. [ sum, avg, max, min ]
+	
+	 Ex: Sum   select depname ,  sum(id) noOfEmps  group by depId
+	 db.employees.aggregate([
+		{$group:{"_id":"$dept" , "NoOfEmpps":{$sum:1}} }
+		])
+		Result 
+				{
+		  _			id: 'Sales',
+					NoOfEmpps: 2
+				}
+				
+	Group Function 
+		  synatx : Very Important
+		  
+		  { $group: { 
+				_id: <groupingField>, 
+				sumField: { $sum: <fieldNameOrValue> } 
+			} }
+			
+	Full Ex:  db.employees.aggregate([
+		  { $group: { 
+			  _id: "$dept", 
+			  NoOfEmps: {$sum :1 } ,
+			  totalExperience: { $sum: "$totalExper" },
+			  averageAge: { $avg: "$age" },
+			  minAge: { $min: "$age" },
+			  maxAge: { $max: "$age" }
+		  } }
+])
+
+there is two new function by group [ push & addToset ] using same any function
+   
+$push : is used when you want to collect all values in an array, including duplicates.
+$addToSet: is used when you want to collect only unique values in an array, ensuring no duplicates.
+		db.employees.aggregate([
+			  { $group: { 
+				  _id: "$dept", 
+				  employeeNames: { $push: "$name" },
+				  uniqueLanguages: { $addToSet: "$language" }
+			  } }
+			])
+{ 
+    "_id": "Sales", 
+    "employeeNames": ["John", "Jane", "Bob", "John"], 
+    "uniqueLanguages": ["English", "Spanish"] 
+  }
+
+	$unwind: Unwinds an array field into multiple documents. 
+	$skip+: Skips a specified number of documents.           { $skip: 10 }
+	$limit: Limits the number of documents passed forward.  { $limit: 5 }
+	$addFields: Adds new fields or modifies existing ones.
+	$facet: Runs multiple pipelines in parallel and outputs results.
+	$merge: Writes results to another collection.
+	$count: Counts the number of documents passing through.
+	$out: Writes aggregation results into a new collection.
+  ---------------------         Indexing              ---------------------------
+ Indexing is crucial for optimizing query performance in MongoDB. 
+ Understanding which indexes to use, based on your query patterns
+ helps achieve a balance between fast read performance and manageable resource usage.
+ Always monitor your indexes and remove unnecessary ones to maintain optimal database performance.
+  
+            Index Types Summary
+Index Type 				Purpose	Use Case
+
+Single Field			Indexes a single field	Querying/filtering on one field   db.collection.createIndex({ field1: 1 }) 
+Compound				Indexes multiple fields	Queries with multiple filters  db.collection.createIndex({ field1: 1, field2: -1 })   // like age , dept
+Multikey				Automatically created for array fields	Querying/filtering on array values  db.collection.createIndex({ languages: 1 })  // where language is array in doc
+Text					Full-text search on string fields	Searching text fields >>  db.collection.createIndex({ fieldName: "text" })
+Hashed					Hashes the indexed field’s value (used for sharding)	Sharding based on a field >>  db.collection.createIndex({ fieldName: "hashed" })
+Geospatial				Indexes geographic coordinates for spatial queries	Querying locations (lat/lng)
+
+
+Ex: 
+db.employee.createIndex({dep :1 } )
+db.employee.getIndexs()
+db.employee.dropIndex({dep:1})
