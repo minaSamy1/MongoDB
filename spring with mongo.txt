@@ -1,0 +1,107 @@
+1- adding the Mongo dependency to Pom.xml  ( name :  Spring Data MongoDB )
+	 <dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-data-mongodb</artifactId>
+			</dependency>
+
+
+2- creating connection to MongoDB through the app.properities
+       // kindly name  [ springDB  ] is the name of mongo schema which we will use if not exist it will create 
+	spring.data.mongodb.uri=mongodb://localhost:27017/springDB   
+	
+	
+3- lets create our normal class as jpa 
+    - entity class      ..> instead using keyword entity it will be  [ @Document ]
+	- repository        ..> the interface will extend from  MongoRepository<Student,Integer>
+	- service           ..> as Normal
+	- Controller		..> as Normal
+	
+
+
+1- Entity 
+
+		
+		@Document(collection = "students")
+		@Data
+		@AllAruguments
+		@NoArguments
+		public class Student {
+			
+			//private String id;
+			@Id
+			private int rno;     >> this will create the _id filed in document
+
+			private String firstName;
+			private String address;
+			private int age;
+		}
+		
+		
+2- the Repository
+  @Repository
+public interface StudnetRepo extends MongoRepository<Student,Integer> { }
+
+
+
+
+Apis 
+localhost:8081/student
+
+-----------------------------------   @Generated value --------------------------------------------
+
+we find the id not generate automatic so we need to make work around 
+MongoDB does not directly support @GeneratedValue like relational databases do.
+You can simulate auto-incrementing behavior by using a sequence counter stored in a separate collection in MongoDB,
+and manually manage the sequence through a service.
+Use this custom sequence generator to ensure that rno values are auto-generated with each new Student document.
+
+steps 
+  1- create sequenc class
+  2- in each entity class  use @transiet to define the sequece for each class
+  3- create method whcih take sequece and return number ( this method can be in seperated service or in controller as you like)
+  
+  
+  
+Steps : 
+
+
+1- 
+	@Document
+	public class DatabaseSequence {
+		@Id
+		private String id ;
+		private Integer seq ;  
+	}
+	
+	
+2- in student class
+   
+    @Transient
+    public static final String SEQUENCE_NAME = "setudents_sequence";
+	
+	
+ 3- 
+ here we will use the generate method in controller
+      @Autowired
+      private MongoOperations mongoOperations;
+
+ 
+   public Integer generateSequence(String seqName) {
+
+        DatabaseSequence counter = mongoOperations.findAndModify(query(where("_id").is(seqName)),
+                new Update().inc("seq", 1), options().returnNew(true).upsert(true),
+                DatabaseSequence.class);
+        return !Objects.isNull(counter) ? counter.getSeq() : 1;
+
+    } 
+	
+	
+4- using sequecne value in post method
+
+ @PostMapping("")
+    public void addStudnet(@RequestBody Student student) {
+         /// setting the id Value before commit
+       student.setRno(generateSequence(Student.SEQUENCE_NAME));
+
+        studnetRepo.save(student);
+    }
