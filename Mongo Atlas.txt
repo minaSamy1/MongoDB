@@ -1,0 +1,12 @@
+1- know how to create account to mongo Atlas cloud 
+
+2- know how to create DB  and create Collection 
+
+3- know how to connect to 
+    -  mongo compass  : mongodb+srv://root:<db_password>@cluster0.phriv.mongodb.net/
+         -as we add a connection in our compass app and all data in cloud appear in compass
+
+    - how to connect to app  ( spring )
+    
+        spring.data.mongodb.uri=mongodb+srv://root:root@cluster0.phriv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+	spring.data.mongodb.database=mydb
