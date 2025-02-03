@@ -1,0 +1,168 @@
+[{
+  "_id": {
+    "$oid": "679e6c92834071362f1db6f4"
+  },
+  "description": " softwarwe devveloper can do anything",
+  "profile": "java",
+  "totalExper": 5,
+  "tech": [
+    "java",
+    "c++"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679e84cc834071362f1dbafa"
+  },
+  "description": " backend developer for any company",
+  "profile": "Spring",
+  "totalExper": 5,
+  "tech": [
+    "oracle",
+    "python",
+    "c++"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679e9f51a669a9ad5a1c1db7"
+  },
+  "description": " softwarwe devveloper in egypt",
+  "profile": "java",
+  "totalExper": 15,
+  "tech": [
+    "java",
+    "Thread",
+    "AWS"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1cd"
+  },
+  "description": "Software developer can do anything",
+  "profile": "Java",
+  "totalExper": 5,
+  "tech": [
+    "Java",
+    "C++"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1ce"
+  },
+  "description": "Passionate about web development and software architecture",
+  "profile": "Frontend Developer",
+  "totalExper": 3,
+  "tech": [
+    "JavaScript",
+    "HTML",
+    "CSS",
+    "React"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1cf"
+  },
+  "description": "Specialized in backend solutions with a focus on security",
+  "profile": "Backend Developer",
+  "totalExper": 7,
+  "tech": [
+    "Node.js",
+    "Express",
+    "MongoDB"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1d0"
+  },
+  "description": "Full-stack developer with expertise in cloud computing",
+  "profile": "Full Stack Developer",
+  "totalExper": 6,
+  "tech": [
+    "Node.js",
+    "React",
+    "AWS"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1d1"
+  },
+  "description": "Mobile developer focusing on Android apps",
+  "profile": "Mobile Developer",
+  "totalExper": 4,
+  "tech": [
+    "Java",
+    "Kotlin",
+    "Android"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1d2"
+  },
+  "description": "Experienced software engineer with focus on data science",
+  "profile": "Data Scientist",
+  "totalExper": 8,
+  "tech": [
+    "Python",
+    "R",
+    "Machine Learning"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1d3"
+  },
+  "description": "Highly skilled in database design and optimization",
+  "profile": "Database Administrator",
+  "totalExper": 10,
+  "tech": [
+    "SQL",
+    "NoSQL",
+    "MongoDB"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1d4"
+  },
+  "description": "Expert in game development and 3D modeling",
+  "profile": "Game Developer",
+  "totalExper": 5,
+  "tech": [
+    "Unity",
+    "C#",
+    "Blender"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1d5"
+  },
+  "description": "Focused on optimizing cloud infrastructure and CI/CD pipelines",
+  "profile": "DevOps Engineer",
+  "totalExper": 6,
+  "tech": [
+    "Docker",
+    "Kubernetes",
+    "AWS"
+  ]
+},
+{
+  "_id": {
+    "$oid": "679eb350834071362f1dc1d6"
+  },
+  "description": "Passionate about AI and developing intelligent systems",
+  "profile": "AI Developer",
+  "totalExper": 4,
+  "tech": [
+    "Python",
+    "TensorFlow",
+    "AI"
+  ]
+}]
