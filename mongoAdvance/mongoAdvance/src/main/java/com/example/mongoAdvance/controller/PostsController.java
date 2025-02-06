@@ -48,7 +48,6 @@ public class PostsController {
 
         System.out.println(">>>>>>>>>>>>>>>>>>>>>Using MongoTemplate >>>>>>>>>>>>>>>>>>>>>>>>");
         Query query = new Query();
-
         Criteria criteria = Criteria.where("totalExper").gt(exper);
         query.addCriteria(criteria);
         return template.find(query, Posts.class);

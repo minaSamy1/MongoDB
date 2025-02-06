@@ -11,7 +11,8 @@
 	
 	
 3- lets create our normal class as jpa 
-    - entity class      ..> instead using keyword entity it will be  [ @Document ]
+    - entity class      ..> instead using keyword entity it will be  [ @Document ] 
+								Or @Documnet(collection="Posts")  to dedect which collection will be use
 	- repository        ..> the interface will extend from  MongoRepository<Student,Integer>
 	- service           ..> as Normal
 	- Controller		..> as Normal
@@ -103,5 +104,176 @@ Steps :
          /// setting the id Value before commit
        student.setRno(generateSequence(Student.SEQUENCE_NAME));
 
-        studnetRepo.save(student);
+        studnetRepo.save(student
+);
     }
+	
+	
+------------------------------------ Querying  --------------------------------------
+in this section we will talk about how to make Query and Aggregation in Mongo by Spring 
+there is Two way to do it  
+   1- Using Annotion   ( @Query   , @Aggregation( pipeline={  "{stage1}" , "{stage2}"                }
+   2-Using MongoTemplate
+
+so the most common to use the Annotation but somecase you may need to write with mongoTemplate to simple it .
+
+Overall each example we will Take will write it with the two Option 
+ 
+- Querying Example 
+
+1-      [       db.Posts.find( { totalExper :{$gt:9}} )      ]
+ using annotion >>    @Query("{ totalExper :{$gt:?0}} ")
+ using Template >> 
+            Query query = new Query();
+            Criteria criteria = Criteria.where("totalExper").gt(exper);
+            query.addCriteria(criteria);
+           return template.find(query, Posts.class);
+   
+ kindly note ( post.class ) mean the return result will in structure posts
+   
+   
+ 2-         [         db.Posts.find( { profile:"java"})         ]
+     using annotion >> @Query("{ profile:?0}")
+     using Template >>  
+	          Query query = new Query();
+              Criteria criteria = Criteria.where("profile").is(profile);
+              query.addCriteria(criteria);
+              return template.find(query, Posts.class);
+			  
+			  
+			  
+3-			 [   db.posts.find (   { $or: [  {profile: "java"} , { totalExper:10} ]  }   )   ]
+     using annotion >>  @Query("  { $or: [ {profile:?0} , { totalExper:?1 }  ]   }") 
+	 using Template >> 
+	                Query query = new Query();
+					Criteria criteria = Criteria.where("profile").is(profile);
+					Criteria criteria1 = criteria.where("totalExper").is(exper);
+					query.addCriteria(new Criteria().orOperator(criteria, criteria1));
+					return template.find(query, Posts.class);
+					
+4-   [ db.posts.find(   profile :  {   $in : [ "java", " Mobile developer" ]  }  } )   ]
+       using annotion >>   @Query(" { profile : {   '$in' :[ ?0 , ?1 ]  }  } ")
+	   using Template >>
+				Query query = new Query();
+				Criteria criteri = Criteria.where("profile").in(profile, profile2);
+				query.addCriteria(criteri);
+				return template.find(query, Posts.class);
+				
+				
+ Criteria.where().
+	.is(value) — Checks for equality.
+	.ne(value) — Checks for not equal.
+	.in(values) — Checks if the value is in a list of values.
+	.nin(values) — Checks if the value is not in a list of values.
+	.gt(value) — Checks if the value is greater than a specified value.
+	.gte(value) — Checks if the value is greater than or equal to a specified value.
+	.lt(value) — Checks if the value is less than a specified value.
+	.lte(value) — Checks if the value is less than or equal to a specified value.
+	.andOperator(criterion1, criterion2) — Combines multiple criteria using an AND operation.
+	.orOperator(criterion1, criterion2) — Combines multiple criteria using an OR operation.
+	
+	
+ //------------------------------ Aggregation -----------------------------------------
+ 
+ 1-    [   db.Posts.aggregate( [     {  $sort:{  totalExper:-1} }  , { $limit:3}  ])  ]
+    using annotion >>   @Aggregation(pipeline = {
+													"{ $sort: { totalExper: -1 } }",
+													"{ $limit : 3 }"    }) 
+													
+	using Template >>
+	
+	      Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.sort(Sort.by(Sort.Order.desc("totalExper"))),
+                Aggregation.limit(3));
+              AggregationResults aggregationResults = template.aggregate(aggregation, "Posts", Posts.class);
+               return aggregationResults.getMappedResults();
+  
+  
+  
+2-   [   db.Posts.aggregate( [{ $match : {  tech: "aws" }    }] )   ]
+     using annotion >>   @Aggregation(pipeline = {
+										"{ $match : { tech :?0}}" })
+	 using Template >>
+			Aggregation aggregation = Aggregation.newAggregation(Aggregation.match(Criteria.where("tech").is(tech)));
+            AggregationResults aggregationResults = template.aggregate(aggregation, "Posts", Posts.class);
+           return aggregationResults.getMappedResults();
+
+
+
+3-  [   db.posts.aggregate(  [{ $match : { totalExper :{  $gte : 5 , $lt :10 }  , tech :"Node.js" }  } ] ) ]
+    using annotion >> 
+	            @Aggregation(pipeline = {
+						       "{ $match : { 'totalExper' : { $gte: 5, $lt: 18 }, 'tech' : ?0 } }" })
+							   
+	using Template >>
+	    Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(
+                        Criteria.where("totalExper").gt(5).lt(10)
+                                .and("tech").is(tech)));
+         AggregationResults aggregationResults = template.aggregate(aggregation, "Posts", Posts.class);
+          return aggregationResults.getMappedResults();
+		  
+		  
+ 4-  db.Posts.aggregate( 
+  [ 
+        {$match : { totalExper :{$gt :10}}},
+        { $group :   
+		   { _id: "$profile" ,
+			 SumExper: { $sum : "$totalExper" },
+			 MinExper : { $min : "$totalExper"} ,
+		   maxExper : { $max :"$totalExper"}
+		   }
+       }
+  ]
+) 
+ 
+  using annotion >> 
+       @Aggregation(pipeline = {
+            "{ $group : {  _id : '$profile' ," +
+                    " SumExper:  {$sum : '$totalExper'} " +
+                    ", Max:{ $max : $totalExper'} ," +
+                    " min: { $min :'$totalExper'} ,  " +
+                    "technical : { $addToSet : '$tech'} } }"
+
+        })
+		
+		using Template >>
+		
+		 Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("totalExper").gt(10)),
+                Aggregation.group("profile").
+                        sum("totalExper").as("SumExper").
+                        max("totalExper").as("Max").
+                        min("totalExper").as("Min").
+                        addToSet("tech").as("technical")
+
+        );
+        AggregationResults aggregationResults = template.aggregate(aggregation, "Posts", ProfileResult.class);
+
+        return aggregationResults.getMappedResults();
+
+							   
+	kindly note: 
+	   here the result will not be the same structure of posts it will be
+	   	{
+				"_id": "Java",
+				"min": 15,
+				"max": 15,
+				"sumExper": 15
+			}
+			
+so WE CREATE NEW CLASS WHCIH WILL MAP THE RETURNED RESULT 
+   public class ProfileResult {
+			private String _id ;
+			private int SumExper;
+			private int Max ;
+			private int Min ;
+			private String [] technical;
+   }
+   
+   
+   SO AggregationResults aggregationResults = template.aggregate(aggregation, "Posts", ProfileResult.class);
+      - This mean you will work on collection Posts and result returnd in ProfileClass 
+	  
+	  
+	  
