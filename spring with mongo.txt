@@ -276,4 +276,28 @@ so WE CREATE NEW CLASS WHCIH WILL MAP THE RETURNED RESULT
       - This mean you will work on collection Posts and result returnd in ProfileClass 
 	  
 	  
+	  /////////////////////// CURD Operation by MongoTemplate ///////////
 	  
+	  
+- we need to update the TotalExper for all document which Have Profile 
+
+1- Using normal Querying 
+
+      List<Posts> p = repo.searchByprofile(profile);   // where it's method in our repo  @Query("{ profile:?0}")
+        System.out.println( " Find Documents "+p.size());
+        for (int i = 0; i < p.size(); i++) { //looping for each document and update
+           Posts current = p.get(i);
+            current.setTotalExper(totalExper);
+            repo.save(current);
+       }
+
+
+2- using MongoTemplate
+
+        // filiter by profile 
+       Criteria criteria = Criteria.where("profile").is(profile);
+	   // setting the filed which want to update
+        Update update = new Update();
+        update.set("totalExper", totalExper);
+        //  template.updateMulti(Query.query(criteria),update,Posts.class);  // to update all document
+        template.updateFirst(Query.query(criteria),update,Posts.class);      // to updateFirst

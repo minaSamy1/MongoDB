@@ -7,10 +7,12 @@ import com.example.mongoAdvance.repository.PostsRepo;
 import org.bson.io.BsonOutput;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.geo.Circle;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -67,6 +69,8 @@ public class PostsController {
 //        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 //        return  repo.searchByprofile(profile);
     }
+
+
 
     @GetMapping("/searchByProfileOrExper")
     public List<Posts> getByProfilOrExper(@RequestParam String profile, @RequestParam int exper) {
@@ -162,5 +166,33 @@ public class PostsController {
         return aggregationResults.getMappedResults();
         // System.out.println(" >>>>>>>>>>>>>>>>>@Aggregation>>>>>>>>>>>>");
         //return repo.getTotalExperPerProfile() ;
+    }
+
+    /// ////////////////  CURD Operation by MongoTemplate ////////////////////
+
+    @PutMapping("")
+    public void UpdateByProfile(@RequestParam String profile, @RequestParam int totalExper) {
+
+
+        Criteria criteria = Criteria.where("profile").is(profile);
+        Update update = new Update();
+        update.set("totalExper", totalExper);
+        //  template.updateMulti(Query.query(criteria),update,Posts.class);
+        template.updateFirst(Query.query(criteria),update,Posts.class);
+        
+//        List<Posts> p = repo.searchByprofile(profile);
+//        System.out.println( " Find Documents "+p.size());
+//        for (int i = 0; i < p.size(); i++) {
+//
+//            Posts current = p.get(i);
+//            System.out.println(" Reading " + current.getProfile() + "  ");
+//            System.out.println(" Reading " + current.getTotalExper() + "  ");
+//            System.out.println(" Reading " + current.getTech().toString() + "  ");
+//            current.setTotalExper(totalExper);
+//            repo.save(current);
+//
+//        }
+
+
     }
 }
